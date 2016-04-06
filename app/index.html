@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>progress-bar</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/css/bootstrap.css" rel="stylesheet" />
+    <style>
+      .bar {
+        width: 100%;
+        height: 100px;
+        background-color: black;
+        margin-top: 5em;
+        transition: width 0.5s;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Begin page content -->
+    <div class="container">
+      <div class="bar">
+      </div>
+    </div>
+  </body>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/js/bootstrap.min.js"></script>
+  <script>
+    var socket = io();
+    socket.on('bar', function(val) {
+      $('.bar').css('width',val+'%');
+    });
+  </script>
+</html>
