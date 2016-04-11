@@ -5,23 +5,41 @@
     <title>progress-bar</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/css/bootstrap.css" rel="stylesheet" />
     <style>
-      .container {
+      .container-fluid {
         margin-top: 2em;
       }
+
+      .btn {
+        font-size: 5em;
+        margin-bottom: 0.5em;
+      }
+
+      #slang-group {
+        height: 100vh;
+        overflow-y: scroll;
+        margin-bottom: 2em;
+      }
+
     </style>
   </head>
   <body>
     <!-- Begin page content -->
-    <div class="container">
-      <div class="col-md-12">
-        <button type="button" class="set-pct btn btn-primary btn-lg btn-block">10</button>
-        <button type="button" class="set-pct btn btn-primary btn-lg btn-block">20</button>
-        <button type="button" class="set-pct btn btn-primary btn-lg btn-block">30</button>
-        <button type="button" class="set-pct btn btn-primary btn-lg btn-block">50</button>
-        <button type="button" class="set-pct btn btn-primary btn-lg btn-block">70</button>
-        <button type="button" class="set-pct btn btn-primary btn-lg btn-block">90</button>
-        <button type="button" class="set-pct btn btn-primary btn-lg btn-block">100</button>
-        <div id="socket-status">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-6">
+          <button type="button" class="set-pct btn btn-primary btn-lg btn-block">0</button>
+          <button type="button" class="set-pct btn btn-primary btn-lg btn-block">25</button>
+          <button type="button" class="set-pct btn btn-primary btn-lg btn-block">40</button>
+          <button type="button" class="set-pct btn btn-primary btn-lg btn-block">45</button>
+          <button type="button" class="set-pct btn btn-primary btn-lg btn-block">50</button>
+          <button type="button" class="set-pct btn btn-primary btn-lg btn-block">55</button>
+          <button type="button" class="set-pct btn btn-primary btn-lg btn-block">75</button>
+          <button type="button" class="set-pct btn btn-primary btn-lg btn-block">DANCE</button>
+          <button type="button" class="set-pct btn btn-primary btn-lg btn-block">95</button>
+          <button type="button" class="set-pct btn btn-primary btn-lg btn-block">ILY</button>
+          <button type="button" class="set-pct btn btn-primary btn-lg btn-block">100</button>
+        </div>
+        <div id="slang-group" class="col-sm-6">
         </div>
       </div>
     </div>
@@ -29,13 +47,52 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.9.0/lodash.js"></script>
   <script>
+    var slang = [
+      {"Lepak": "To relax"},
+      {"Enthu": "<em>Enthu</em>siastic"},
+      {"Kampung": "Village"},
+      {"Relak": "Relax"},
+      {"Leng zhai": "Handsome guy"},
+      {"Aiya": "Expressing Exasperation"}, //halp
+      {"Tolong": "Please"},
+      {"Kiamsiap": "Stingy"},
+      {"Abang": "Buddy"},
+      {"Bagus": "Good"},
+      {"Cock-up": "Screw-up"},
+      {"Sumpah": "Promise"},
+      {"Tarik": "Pull"},
+      {"Blur Sotong": "Clumsy, Ditzy"},
+      {"Chicken Feet": "Easy"},
+      {"Paiseh": "Embarrassed"},
+      {"Tok gong": "Very good"},
+      //{"Lah": "Expressing Emphasis"}, //halp!!!
+      //{"Meh": "Scepticism"},
+      //{"Lor": "Expressing Resignation"}, //halp!!
+      {"Apa ini": "What's this?"}
+    ];
+
     var socket = io();
     $(document).ready(function() {
+      $sg = $("#slang-group");
+
+      $.each(slang, function(index, val) {
+        $.each(val, function(key,val) {
+          $sg.append('<button type="button" class="set-text btn btn-warning btn-lg btn-block" data-id="'+ index +'" >'+ key +'</button>');
+        });
+      });
+
       $('.set-pct').click(function() {
         $el = $(this);
-        socket.emit('bar' ,$(this).text());
+        socket.emit('bar', $(this).text());
       });
+
+      $('.set-text').click(function() {
+        $el = $(this);
+        socket.emit('text', slang[$el.data("id")]);
+      });
+
     });
 
   </script>

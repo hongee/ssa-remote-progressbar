@@ -17,8 +17,13 @@ io.on('connection', function(socket) {
   console.log("A user connected!");
   socket.on('bar', function(val) {
     console.log("Switch to: " + val);
-    io.emit('bar',val); 
+    io.emit('bar',val);
   });
+
+  socket.on('text', function(val) {
+    console.log("Switching Text");
+    io.emit('text',val);
+  })
 
   socket.on('disconnect', function() {
     console.log("A user disconnected");

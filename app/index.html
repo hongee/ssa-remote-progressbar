@@ -4,30 +4,253 @@
     <meta charset="utf-8">
     <title>progress-bar</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/css/bootstrap.css" rel="stylesheet" />
+    <link href='https://fonts.googleapis.com/css?family=Nunito:400,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Dancing+Script:700|Vollkorn:400,700' rel='stylesheet' type='text/css'>
     <style>
-      .bar {
+      video#bgvid {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        z-index: -100;
+        -ms-transform: translateX(-50%) translateY(-50%);
+        -moz-transform: translateX(-50%) translateY(-50%);
+        -webkit-transform: translateX(-50%) translateY(-50%);
+        transform: translateX(-50%) translateY(-50%);
+        background-size: cover;
+        -webkit-filter: blur(10px) grayscale(0.8) saturate(10%);
+        transition: -webkit-filter 1s linear;
+      }
+
+      .bar-wrapper {
+        border: 7px solid #000000;
+        border-radius: 5px;
         width: 100%;
-        height: 100px;
-        background-color: black;
+        height: 125px;;
         margin-top: 5em;
-        transition: width 0.5s;
+        overflow: hidden;
+      }
+
+      .bar {
+        width: 0%;
+        max-width: 99%;
+        height: 100px;
+        background-color: rgb(0,0,0);
+        transition: width 2s cubic-bezier(0.550, 0.055, 0.675, 0.190);
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        margin: 5px;
+        overflow: hidden;
+      }
+
+      .bar-dance {
+        transition: width 50ms;
+      }
+
+      .pct {
+        color: rgb(255,255,255);
+        mix-blend-mode: difference;
+        align-self: center;
+        font-size: 4em;
+        font-family: 'Nunito', sans-serif;
+        font-weight: 400;
+      }
+
+      .container {
+        display: flex;
+        height: 100vh;
+        flex-direction: column;
+      }
+
+      .text-box {
+        margin-top: 2em;
+        align-self: center;
+        transition: opacity 0.2s cubic-bezier(0.550, 0.055, 0.675, 0.190);
+        position: relative;
+        padding: 1em;
+        overflow: hidden;
+      }
+
+      .text-box-background {
+        background-color: rgb(0,0,0);
+        opacity: 0.3;
+        flex: 1;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        right: 0;
+        top: 0;
+        z-index: -2;
+        border-radius: 5px;
+        -webkit-filter: blur(2px);
+      }
+
+      .text-box > .text {
+        color: rgb(255, 255, 255);
+        font-family: "Nunito", sans-serif;
+      }
+
+      .text-box > .text > .h2 {
+        font-size: 3em;
+      }
+
+      .text-box > .text > .h1 {
+        font-size: 5em;
+      }
+
+      .t1 {
+        font-style: italic;
+      }
+
+      .hide {
+        opacity: 0;
       }
     </style>
   </head>
   <body>
     <!-- Begin page content -->
     <div class="container">
-      <div class="bar">
+      <div class="bar-wrapper">
+        <div class="bar">
+          <div class="pct h1"></div>
+        </div>
+      </div>
+      <div class="text-box hide">
+        <div class="text">
+          <span class="h1 t1">A</span>
+          <span class="h2">:</span>
+          <span class="h1 t2">B</span>
+        </div>
+        <div class="text-box-background">
+        </div>
       </div>
     </div>
+    <video autoplay loop muted id="bgvid">
+      <source src="vidcropped.mp4" type="video/mp4">
+    </video>
   </body>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/js/bootstrap.min.js"></script>
   <script>
+    var updateSpeed = 100;
     var socket = io();
-    socket.on('bar', function(val) {
-      $('.bar').css('width',val+'%');
+    $(document).ready(function() {
+      var $bar = $('.bar');
+      var $pct = $('.pct');
+      var bgvid = document.getElementById("bgvid");
+      var fluc = null;
+      var spasm = null;
+      var hidetext = null;
+
+
+      //sets default playback rate
+      bgvid.playbackRate = 0.7;
+
+      setInterval(function() {
+        var $el = $('.bar');
+        pctage = ((parseFloat($el.css('width')) / parseFloat($el.parent().css('width'))) * 100).toFixed(1) + '%';
+        if(parseFloat(pctage) > 10) {
+          if(parseFloat(pctage) > 95) {
+            $pct.html("100%");
+          } else {
+            $pct.html(pctage);
+          }
+        } else {
+          $pct.html("");
+        }
+      }, updateSpeed);
+
+      function showtextnow() {
+        $(".text-box").removeClass("hide");
+        hidetext = setInterval(function() {
+          $(".text-box").addClass("hide");
+        }, 4000);
+      }
+
+      function stophide() {
+        if(hidetext) {
+          clearInterval(hidetext);
+          hidetext = null;
+        }
+      }
+
+      function startFluctuations() {
+        $bar.css('transition', "width 0.6s cubic-bezier(0.550, 0.055, 0.675, 0.190)");
+        fluc = setInterval(function() {
+          var val = 75 + (Math.random() * 20);
+          $bar.css('width',val+'%');
+          var blurrad = 10 - ((val/100) * 10);
+          var grays = 0.9 - ((val/100) * 0.9);
+          var saturate = 10 + ((val/100) * 90)
+          $(bgvid).css("-webkit-filter","blur(" + blurrad + "px) grayscale(" + grays + ") saturate(" + saturate + "%)")
+        }, 750);
+      }
+
+      function clearFluctuations() {
+        $bar.css('transition', "width 2s cubic-bezier(0.550, 0.055, 0.675, 0.190)")
+        if(fluc) clearInterval(fluc);
+      }
+
+      function ily() {
+        $(bgvid).css("transition", "none");
+        $(bgvid).css("-webkit-filter","invert(1)");
+        $pct.css("font-family", "courier, monospace");
+        $bar.css('width','100%');
+
+        spasm = setInterval(function() {
+          $(bgvid).css("-webkit-filter","invert(1) brightness(" + (Math.random() * 2) + ")");
+          var r = Math.random();
+          if(r > 0.8) {
+            $pct.css("font-family", "Vollkorn");
+          } else if (r >  0.5) {
+            $pct.css("font-family", "'Dancing Script'");
+          } else {
+            $pct.css("font-family", "courier, monospace");
+          }
+        }, Math.random() * 2000 );
+      }
+
+      function clearily() {
+        $(bgvid).css("transition","-webkit-filter 1s linear");
+        $pct.css("font-family", "'Nunito', sans-serif");
+        if(spasm) clearInterval(spasm);
+      }
+
+      socket.on('bar', function(val) {
+        if(val === "DANCE") {
+          startFluctuations();
+        } else {
+          clearFluctuations();
+        }
+
+        if(val === "ILY") {
+          ily();
+        } else {
+          clearily();
+        }
+
+        $bar.css('width',val+'%');
+        var blurrad = 10 - ((val/100) * 10);
+        var grays = 0.9 - ((val/100) * 0.9);
+        var saturate = 10 + ((val/100) * 90)
+        $(bgvid).css("-webkit-filter","blur(" + blurrad + "px) grayscale(" + grays + ") saturate(" + saturate + "%)")
+      });
+
+      socket.on('text', function(val) {
+        stophide();
+        $.each(val, function(key, val) {
+          $('.t1').html(key);
+          $('.t2').html(val);
+          showtextnow();
+        });
+      });
+
+
     });
   </script>
 </html>
